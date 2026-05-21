@@ -102,3 +102,37 @@ app.resetStore = () => {
 };
 
 module.exports = app;
+
+// Custom 404 page
+app.use((req, res) => {
+  res.status(404).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Lost Puppy</title>
+  <style>
+    body { background: #0d1117; color: #c9d1d9; font-family: "Segoe UI", system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; text-align: center; }
+    .container { max-width: 500px; }
+    .code { font-size: 120px; font-weight: bold; color: #f0883e; margin: 0; line-height: 1; }
+    .puppy { font-size: 80px; margin: 20px 0; }
+    h1 { color: #c9d1d9; font-size: 24px; }
+    p { color: #8b949e; }
+    a { color: #58a6ff; text-decoration: none; }
+    .btn { display: inline-block; background: #238636; color: #fff; padding: 10px 24px; border-radius: 6px; margin-top: 20px; text-decoration: none; }
+    .btn:hover { background: #2ea043; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .puppy { animation: bounce 1s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="code">404</div>
+    <div class="puppy">🐶</div>
+    <h1>This puppy got lost!</h1>
+    <p>The page you're looking for doesn't exist. Maybe it ran away to chase a squirrel.</p>
+    <a href="/products" class="btn">← Take me home</a>
+  </div>
+</body>
+</html>`);
+});
