@@ -3,36 +3,62 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About StoreJS</title>
+    <title>StoreJS — About</title>
     <style>
-      body { background: #0d1117; color: #c9d1d9; font-family: monospace; max-width: 800px; margin: 0 auto; padding: 20px; }
-      pre { color: #58a6ff; font-size: 10px; line-height: 1.1; }
-      h2 { color: #f0883e; }
-      a { color: #58a6ff; }
-      .stats { background: #161b22; padding: 16px; border-radius: 8px; border: 1px solid #30363d; margin: 16px 0; }
-      .stats span { color: #f0883e; font-weight: bold; }
+      @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      body { background: linear-gradient(-45deg, #0d1117, #161b22, #1a1e2e, #0d1117); background-size: 400% 400%; animation: gradient 15s ease infinite; color: #c9d1d9; font-family: "Segoe UI", system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+      h1 { color: #f0883e; }
+      a { color: #58a6ff; text-decoration: none; }
+      .btn { display: inline-block; background: #238636; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+      .nav { margin-bottom: 24px; padding: 12px 0; border-bottom: 1px solid #30363d; }
+      .nav a { margin-right: 16px; }
+      .card { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px); border: 1px solid #30363d; border-radius: 12px; padding: 24px; margin: 16px 0; }
+      .tech { display: inline-block; background: #1f2937; border: 1px solid #30363d; padding: 4px 12px; border-radius: 20px; margin: 4px; font-size: 13px; }
+      .ascii { color: #58a6ff; font-family: monospace; font-size: 11px; line-height: 1.2; white-space: pre; }
+      .glow { text-shadow: 0 0 10px rgba(248, 131, 62, 0.5); }
+      .timestamp { color: #8b949e; font-size: 13px; }
     </style>
   </head>
   <body>
-    <pre>
+    <div class="nav">
+      <a href="/products" class="btn">← Products</a>
+    </div>
+
+    <div class="card">
+      <pre class="ascii">
    _____ _                    _ _____ 
   / ____| |                  | / ____|
  | (___ | |_ ___  _ __ ___  | | (___  
   \___ \| __/ _ \| '__/ _ \ | |\___ \ 
   ____) | || (_) | | |  __/_| |____) |
  |_____/ \__\___/|_|  \___(_)_|_____/ 
-    </pre>
-
-    <h2>About</h2>
-    <p>A demo store app built for testing preview environments with SuperPlane.</p>
-
-    <div class="stats">
-      <p>🏗️ Runtime: <span>Node.js</span></p>
-      <p>📦 Framework: <span>Express</span></p>
-      <p>🛩️ Deployed via: <span>SuperPlane</span></p>
-      <p>⏱️ Server time: <span><%= new Date().toISOString() %></span></p>
+      </pre>
     </div>
 
-    <p><a href="/products">← Back to Products</a></p>
+    <h1 class="glow">About StoreJS</h1>
+
+    <div class="card">
+      <p>A demo product catalog for testing preview environments.</p>
+      <p class="timestamp">Server time: <%= new Date().toISOString() %></p>
+    </div>
+
+    <div class="card">
+      <h2 style="color: #f0883e; margin-top: 0;">Tech Stack</h2>
+      <span class="tech">Node.js 22</span>
+      <span class="tech">Express</span>
+      <span class="tech">EJS</span>
+      <span class="tech">DigitalOcean</span>
+      <span class="tech">SuperPlane</span>
+      <span class="tech">Nginx</span>
+    </div>
+
+    <div class="card">
+      <h2 style="color: #f0883e; margin-top: 0;">How it works</h2>
+      <p>1. Open a PR on <a href="https://github.com/puppies-inc/storejs">puppies-inc/storejs</a></p>
+      <p>2. Comment <code style="background: #1f2937; padding: 2px 6px; border-radius: 4px;">/start</code> on the PR</p>
+      <p>3. SuperPlane spins up a DigitalOcean droplet with your branch</p>
+      <p>4. Get a live preview URL in ~2 minutes</p>
+      <p>5. Close the PR — environment auto-destroys</p>
+    </div>
   </body>
 </html>
