@@ -102,3 +102,9 @@ app.resetStore = () => {
 };
 
 module.exports = app;
+
+// Toast notification helper
+app.use((req, res, next) => {
+  res.locals.toastCSS = '<style>.toast{position:fixed;top:20px;right:20px;background:#238636;color:#fff;padding:12px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:slideIn 0.3s ease,fadeOut 0.3s ease 2.7s;z-index:1000}@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes fadeOut{to{opacity:0}}</style>';
+  next();
+});
