@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <style>
+      body { background-color: #1a1a2e; color: #e0e0e0; font-family: "Segoe UI", system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+      h1 { color: #e94560; }
+      a { color: white; background: #e94560; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-block; margin: 4px 0; }
+      a:hover { background: #c73650; }
+      input, textarea { background: #16213e; color: #e0e0e0; border: 1px solid #0f3460; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
+      button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+      button:hover { background: #c73650; }
+      p { font-size: 18px; }
+    </style>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Products</title>
+    <title>🌙 StoreJS Dark Mode</title>
   </head>
   <body>
     <% if (notice) { %>
       <p><%= notice %></p>
     <% } %>
 
-    <h1>Products</h1>
+    <h1>🌙 Products</h1>
 
     <p><a href="/products/new">New product</a></p>
 
