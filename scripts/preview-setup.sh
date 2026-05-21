@@ -2,6 +2,15 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
+echo "=== Waiting for apt lock ==="
+for i in $(seq 1 30); do
+  if ! fuser /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend >/dev/null 2>&1; then
+    break
+  fi
+  echo "Apt is locked, waiting... ($i/30)"
+  sleep 5
+done
+
 echo "=== Installing Node.js 22 ==="
 for i in 1 2 3; do
   curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && break
