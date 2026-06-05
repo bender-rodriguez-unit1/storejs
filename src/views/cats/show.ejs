@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StoreJS — Editing puppy</title>
+    <title>StoreJS — <%= cat.name %></title>
     <style>
       body { background: #0d1117; color: #c9d1d9; font-family: "Segoe UI", system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
       h1 { color: #f0883e; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
@@ -27,31 +27,30 @@
       .nav { margin-bottom: 24px; padding: 12px 0; border-bottom: 1px solid #30363d; }
       .nav a { margin-right: 16px; }
       form p { margin: 16px 0; }
+      .cat-photo { display: block; max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #30363d; margin: 16px 0; }
     </style>
   </head>
   <body>
     <div class="nav">
-      <a href="/puppies/<%= puppy.id %>" class="btn">← Back</a>
+      <a href="/cats" class="btn">← Cats</a>
     </div>
 
-    <h1>Editing puppy</h1>
-
-    <% if (errors && errors.length > 0) { %>
-      <div class="error">
-        <% errors.forEach(function(error) { %>
-          <p><%= error %></p>
-        <% }) %>
-      </div>
+    <% if (notice) { %>
+      <div class="notice"><%= notice %></div>
     <% } %>
 
-    <form action="/puppies/<%= puppy.id %>" method="post">
-      <p>
-        <label for="name">Name</label>
-        <input id="name" name="name" type="text" value="<%= puppy.name %>" />
-      </p>
-      <p>
-        <button type="submit">Update Puppy</button>
-      </p>
+    <h1>🐱 <%= cat.name %></h1>
+
+    <img class="cat-photo" src="https://cataas.com/cat?<%= cat.id %>" alt="A random cat" />
+
+    <p>😺 Name: <%= cat.name %></p>
+
+    <p>
+      <a href="/cats/<%= cat.id %>/edit" class="btn">Edit</a>
+    </p>
+
+    <form action="/cats/<%= cat.id %>/delete" method="post" style="margin-top: 24px;">
+      <button type="submit" class="btn-danger" style="background: #da3633; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Delete</button>
     </form>
   </body>
 </html>
