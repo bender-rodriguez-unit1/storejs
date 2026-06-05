@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StoreJS — Products</title>
+    <title>StoreJS — Puppies</title>
     <style>
       body { background: #0d1117; color: #c9d1d9; font-family: "Segoe UI", system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
       h1 { color: #f0883e; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
@@ -31,8 +31,8 @@
   </head>
   <body>
     <div class="nav">
-      <a href="/products" class="btn">Products</a>
-      <a href="/products/new" class="btn">+ New</a>
+      <a href="/puppies" class="btn">Puppies</a>
+      <a href="/puppies/new" class="btn">+ New puppy</a>
       <a href="/about">About</a>
     </div>
 
@@ -40,17 +40,17 @@
       <div class="notice"><%= notice %></div>
     <% } %>
 
-    <h1>Products</h1>
+    <h1>Puppies</h1>
 
-    <% if (products.length === 0) { %>
-      <p class="empty">No products yet. Create your first one!</p>
+    <% if (puppies.length === 0) { %>
+      <p class="empty">No puppies yet. Adopt your first one!</p>
     <% } %>
 
     <ul>
-      <% products.forEach(function(product) { %>
+      <% puppies.forEach(function(puppy) { %>
         <li>
-          <span><%= product.name %></span>
-          <a href="/products/<%= product.id %>" class="btn">View →</a>
+          <span>Name: <%= puppy.name %></span>
+          <a href="/puppies/<%= puppy.id %>" class="btn">View →</a>
         </li>
       <% }) %>
     </ul>
