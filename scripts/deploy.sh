@@ -19,10 +19,14 @@ echo "Restarting service..."
 systemctl restart storejs
 
 echo "Waiting for startup..."
-sleep 3
+# Poll the health endpoint until the freshly restarted service responds.
+HTTP_STATUS=000
+for i in $(seq 1 30); do
+  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/puppies || true)
+  [ "$HTTP_STATUS" = "200" ] && break
+  sleep 2
+done
 
-# Health check
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/puppies)
 if [ "$HTTP_STATUS" = "200" ]; then
   echo "Deploy successful - storejs is healthy (HTTP $HTTP_STATUS)"
   exit 0
