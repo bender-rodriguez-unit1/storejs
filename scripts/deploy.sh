@@ -32,5 +32,11 @@ if [ "$HTTP_STATUS" = "200" ]; then
   exit 0
 else
   echo "Deploy FAILED - health check returned HTTP $HTTP_STATUS"
+  echo "--- systemctl cat storejs ---"
+  systemctl cat storejs --no-pager || true
+  echo "--- systemctl status storejs ---"
+  systemctl status storejs --no-pager -l || true
+  echo "--- journalctl -u storejs (last 40) ---"
+  journalctl -u storejs -n 40 --no-pager || true
   exit 1
 fi
