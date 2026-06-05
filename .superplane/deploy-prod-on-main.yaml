@@ -1,10 +1,12 @@
 apiVersion: v1
 kind: Canvas
 metadata:
+  id: 54260ae3-f744-4bc9-b3ab-e67a34e2f1dc
   name: storejs-deploy-on-main
-  description: Auto-deploys storejs to the DigitalOcean prod droplet whenever main changes.
+  description: Auto-deploys storejs to the DigitalOcean prod droplet on push to main, and provisions a preview droplet per pull request (destroyed on PR close).
 spec:
   nodes:
+    # ----- Prod deploy on push to main -----
     - id: trigger-main-push
       name: GitHub Push (main)
       type: TYPE_TRIGGER
@@ -47,6 +49,185 @@ spec:
         connectionRetry: { enabled: true, retries: 5, intervalSeconds: 15 }
       position: { x: 1320, y: 100 }
 
+    # ----- Per-PR preview environments -----
+    - id: trigger-pr
+      name: GitHub Pull Request
+      type: TYPE_TRIGGER
+      component: github.onPullRequest
+      integration: { id: 51a76317-1481-467b-b761-3bb11af1851e, name: "" }
+      configuration:
+        repository: storejs
+        actions:
+          - opened
+          - closed
+      position: { x: 120, y: 700 }
+
+    - id: pr-action-router
+      name: Branch on PR Action
+      type: TYPE_ACTION
+      component: if
+      configuration:
+        expression: 'root().data.action == "opened"'
+      position: { x: 720, y: 700 }
+
+    # --- opened: create droplet + remember it ---
+    - id: create-preview-droplet
+      name: Create Preview Droplet
+      type: TYPE_ACTION
+      component: digitalocean.createDroplet
+      integration: { id: 505ed7fc-cc70-4226-8ff6-50e3ef601b8d, name: "" }
+      configuration:
+        name: 'storejs-preview-pr-{{ root().data.number }}'
+        region: nyc1
+        size: s-1vcpu-1gb
+        image: ubuntu-22-04-x64
+        sshKeys:
+          - 49:91:c4:08:05:2c:19:a4:f3:cf:6d:f4:27:4a:57:68
+        tags:
+          - storejs-preview
+          - 'pr-{{ root().data.number }}'
+        monitoring: true
+        ipv6: false
+        backups: false
+        userData: |
+          #!/bin/bash
+          exec > /var/log/preview-setup.log 2>&1
+          export PR_NUMBER={{ root().data.number }}
+          set -euo pipefail
+          export DEBIAN_FRONTEND=noninteractive
+
+          echo "=== Waiting for apt lock ==="
+          for i in $(seq 1 30); do
+            if ! fuser /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend >/dev/null 2>&1; then
+              break
+            fi
+            echo "Apt is locked, waiting... ($i/30)"
+            sleep 5
+          done
+
+          echo "=== Installing Node.js 22 ==="
+          for i in 1 2 3; do
+            curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && break
+            echo "Retry $i: nodesource setup failed"
+            sleep 5
+          done
+          apt-get install -y nodejs nginx
+
+          echo "=== Cloning repo ==="
+          cd /opt
+          for i in 1 2 3 4 5; do
+            git clone https://github.com/puppies-inc/storejs.git app && break
+            echo "Retry $i: git clone failed"
+            rm -rf app
+            sleep 10
+          done
+
+          cd app
+          echo "=== Checking out PR #${PR_NUMBER} ==="
+          git fetch origin "pull/${PR_NUMBER}/head:pr-branch"
+          git checkout pr-branch
+
+          echo "=== Installing dependencies ==="
+          npm install --production
+
+          echo "=== Creating systemd service ==="
+          cat > /etc/systemd/system/storejs.service << 'UNIT_EOF'
+          [Unit]
+          Description=StoreJS
+          After=network.target
+          [Service]
+          Type=simple
+          User=root
+          WorkingDirectory=/opt/app
+          ExecStart=/usr/bin/node src/server.js
+          Restart=always
+          Environment=PORT=3000
+          Environment=NODE_ENV=production
+          [Install]
+          WantedBy=multi-user.target
+          UNIT_EOF
+
+          echo "=== Configuring nginx ==="
+          cat > /etc/nginx/sites-available/storejs << 'NGINX_EOF'
+          server {
+              listen 80 default_server;
+              server_name _;
+
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+              }
+          }
+          NGINX_EOF
+
+          rm -f /etc/nginx/sites-enabled/default
+          ln -sf /etc/nginx/sites-available/storejs /etc/nginx/sites-enabled/
+
+          echo "=== Starting services ==="
+          systemctl daemon-reload
+          systemctl enable storejs nginx
+          systemctl start storejs
+          sleep 2
+          systemctl restart nginx
+
+          echo "SETUP_COMPLETE"
+      position: { x: 1320, y: 550 }
+
+    - id: remember-preview
+      name: Remember Preview Droplet
+      type: TYPE_ACTION
+      component: upsertMemory
+      configuration:
+        namespace: storejs-previews
+        matchList:
+          - { name: pr_number, value: 'root().data.number' }
+        valueList:
+          - { name: pr_number,   value: 'root().data.number' }
+          - { name: droplet_id,  value: '$["Create Preview Droplet"].data.id' }
+          - { name: pr_url,      value: 'root().data.pull_request.html_url' }
+      position: { x: 1920, y: 550 }
+
+    # --- closed: look up remembered droplet + destroy ---
+    - id: lookup-preview
+      name: Lookup Preview Droplet
+      type: TYPE_ACTION
+      component: readMemory
+      configuration:
+        namespace: storejs-previews
+        resultMode: latest
+        matchList:
+          - { name: pr_number, value: 'root().data.number' }
+      position: { x: 1320, y: 850 }
+
+    - id: delete-preview-droplet
+      name: Delete Preview Droplet
+      type: TYPE_ACTION
+      component: digitalocean.deleteDroplet
+      integration: { id: 505ed7fc-cc70-4226-8ff6-50e3ef601b8d, name: "" }
+      configuration:
+        droplet: '{{ $["Lookup Preview Droplet"].data.values[0].droplet_id }}'
+      position: { x: 1920, y: 850 }
+
+    - id: forget-preview
+      name: Forget Preview Droplet
+      type: TYPE_ACTION
+      component: deleteMemory
+      configuration:
+        namespace: storejs-previews
+        matchList:
+          - { name: pr_number, value: 'root().data.number' }
+      position: { x: 2520, y: 850 }
+
   edges:
+    # prod-on-main
     - { sourceId: trigger-main-push, targetId: get-prod-droplet, channel: default }
     - { sourceId: get-prod-droplet, targetId: deploy-over-ssh, channel: default }
+
+    # preview-on-pr
+    - { sourceId: trigger-pr, targetId: pr-action-router, channel: default }
+    - { sourceId: pr-action-router, targetId: create-preview-droplet, channel: "true" }
+    - { sourceId: create-preview-droplet, targetId: remember-preview, channel: default }
+    - { sourceId: pr-action-router, targetId: lookup-preview, channel: "false" }
+    - { sourceId: lookup-preview, targetId: delete-preview-droplet, channel: found }
+    - { sourceId: delete-preview-droplet, targetId: forget-preview, channel: default }

@@ -22,10 +22,14 @@ Exit code 0 = success (health check passed), non-zero = failure (the script dump
 
 ## Auto-deploy SuperPlane Canvas
 
-There is a SuperPlane canvas that redeploys on every push to `main`:
+A single SuperPlane canvas (`storejs-deploy-on-main`, app id `54260ae3-f744-4bc9-b3ab-e67a34e2f1dc`) runs two flows:
 
-- **App name:** `storejs-deploy-on-main`
-- **Flow:** `github.onPush (main)` → `digitalocean.getDroplet` (resolve public IP) → `ssh` (run `scripts/deploy.sh` pinned to the pushed commit)
+1. **Prod on push to main:** `github.onPush (main)` → `digitalocean.getDroplet` (resolve public IP) → `ssh` (run `scripts/deploy.sh` pinned to the pushed commit).
+2. **Preview per pull request:** `github.onPullRequest (opened, closed)` → `if (action == "opened")`
+   - **true:** `digitalocean.createDroplet` (name `storejs-preview-pr-<N>`, tags `storejs-preview` + `pr-<N>`, runs `scripts/preview-setup.sh` inline as cloud-init `user_data`) → `upsertMemory` (namespace `storejs-previews`, row keyed by `pr_number`, stores `droplet_id`).
+   - **false:** `readMemory` (look up the row by `pr_number`) → on `found` → `digitalocean.deleteDroplet` (using the stored droplet id) → `deleteMemory` (remove the row). `notFound` is a silent no-op for PRs that never had a preview.
+
+Preview droplets are reachable on port 80 (nginx → node on :3000) at the droplet's public IP, available from the `Create Preview Droplet` node output (`data.networks.v4[*].ip_address` where `type == "public"`).
 
 ### Recreating the canvas (CLI recipe for an agent)
 
@@ -128,4 +132,10 @@ The `ssh` node emits `success` (remote command exit 0) and `failed` (non-zero). 
 
 | Secret name | Key | Description |
 |---|---|---|
-| `STOREJS_SSH_DO` | `private_key` | SSH private key for the `storejs-prod` droplet (`root@`) |
+| `STOREJS_SSH_DO` | `private_key` | SSH private key for the `storejs-prod` droplet (`root@`); the same key is attached to every preview droplet on create |
+
+### Canvas memory namespaces
+
+| Namespace | Keyed by | Stored fields | Written by | Read by |
+|---|---|---|---|---|
+| `storejs-previews` | `pr_number` | `pr_number`, `droplet_id`, `pr_url` | `Remember Preview Droplet` (upsert) | `Lookup Preview Droplet` (read), `Forget Preview Droplet` (delete) |
