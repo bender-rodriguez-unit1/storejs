@@ -16,7 +16,7 @@ echo "Waiting for startup..."
 sleep 3
 
 # Health check
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/products)
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/puppies)
 if [ "$HTTP_STATUS" = "200" ]; then
   echo "Deploy successful - storejs is healthy (HTTP $HTTP_STATUS)"
   exit 0
