@@ -3,7 +3,7 @@ const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumenta
 const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
-const { Resource } = require('@opentelemetry/resources');
+const { resourceFromAttributes } = require('@opentelemetry/resources');
 const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = require('@opentelemetry/semantic-conventions');
 
 const OTLP_ENDPOINT = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'https://ingress.europe-west4.gcp.dash0.com';
@@ -12,7 +12,7 @@ const DASH0_TOKEN = process.env.DASH0_TOKEN || '';
 const headers = DASH0_TOKEN ? { 'Authorization': `Bearer ${DASH0_TOKEN}` } : {};
 
 const sdk = new NodeSDK({
-  resource: new Resource({
+  resource: resourceFromAttributes({
     [ATTR_SERVICE_NAME]: 'storejs',
     [ATTR_SERVICE_VERSION]: '1.0.0',
     'deployment.environment': process.env.NODE_ENV || 'production',
