@@ -4,22 +4,7 @@ set -e
 # Optional target commit/ref to deploy. Defaults to the tip of main.
 TARGET_REF="${1:-origin/main}"
 
-# Locate the app checkout (path differs across droplet generations).
-APP_DIR=""
-for d in /opt/storejs /opt/app; do
-  if [ -d "$d/.git" ]; then
-    APP_DIR="$d"
-    break
-  fi
-done
-
-if [ -z "$APP_DIR" ]; then
-  echo "Deploy FAILED - no git checkout found in /opt/storejs or /opt/app" >&2
-  exit 1
-fi
-
-cd "$APP_DIR"
-echo "Deploying in $APP_DIR"
+cd /opt/storejs
 
 echo "Fetching latest changes..."
 git fetch origin main
