@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { productsCreated, productsDeleted, productsTotal } = require('./metrics');
 
 const app = express();
 
@@ -52,6 +53,8 @@ app.post('/products', (req, res) => {
 
   nextId += 1;
   products.push(product);
+  productsCreated.add(1);
+  productsTotal.add(1);
 
   setNotice(req, 'Product was successfully created.');
   res.redirect(`/products/${product.id}`);
@@ -86,6 +89,8 @@ app.post('/products/:id/delete', (req, res, next) => {
   if (!product) return next();
 
   products = products.filter((item) => item.id !== id);
+  productsDeleted.add(1);
+  productsTotal.add(-1);
 
   setNotice(req, 'Product was successfully deleted.');
   res.redirect('/products');
