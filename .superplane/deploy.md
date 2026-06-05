@@ -38,11 +38,11 @@ The SuperPlane CLI is the source of truth — discover exact names/IDs/schemas w
 3. **Confirm the secret** holding the droplet SSH key (`superplane secrets list`):
    - `STOREJS_SSH_DO`, key `private_key`
 4. **Find the prod droplet id:** `superplane integrations list-resources --id 505ed7fc-cc70-4226-8ff6-50e3ef601b8d --type droplet` → `storejs-prod` = `575470632`
-5. **Write the canvas YAML** (below), then create + lay out:
+5. **Apply the canvas YAML** in [.superplane/deploy-prod-on-main.yaml](deploy-prod-on-main.yaml), then create + lay out:
    ```bash
-   superplane apps create --canvas-file canvases/deploy-prod-on-main.yaml --canvas-auto-layout horizontal
+   superplane apps create --canvas-file .superplane/deploy-prod-on-main.yaml --canvas-auto-layout horizontal
    # later edits (file must include metadata.id; change management is disabled so no --draft needed):
-   superplane apps canvas update --file canvases/deploy-prod-on-main.yaml
+   superplane apps canvas update --file .superplane/deploy-prod-on-main.yaml
    ```
 6. **Verify clean:** `superplane apps canvas get storejs-deploy-on-main -o yaml` shows empty `errorMessage`/`warningMessage` on every node.
 7. **Validate a run** after a push to `main`:
