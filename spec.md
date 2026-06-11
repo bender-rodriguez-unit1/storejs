@@ -2,13 +2,13 @@
 
 ## Goal
 
-Build a minimal demo web app in Node.js that shows a complete CRUD flow for a single entity: `Cat`.
+Build a minimal demo web app in Node.js that shows a complete CRUD flow for a single entity: `Puppy`.
 
 The app should be intentionally simple, readable, and easy to demo.
 
 ## Product Scope
 
-- Single domain entity: `Cat`
+- Single domain entity: `Puppy`
 - Single user-facing attribute: `name`
 - No additional business entities
 
@@ -24,19 +24,19 @@ The app should be intentionally simple, readable, and easy to demo.
 
 ### 1. Routing
 
-- `GET /` shows cat index (homepage must be cat management entry point)
-- Standard cat CRUD routes:
-  - `GET /cats`
-  - `GET /cats/new`
-  - `POST /cats`
-  - `GET /cats/:id`
-  - `GET /cats/:id/edit`
-  - `POST /cats/:id` (or `PATCH/PUT` if framework supports method override cleanly)
-  - `POST /cats/:id/delete` (or `DELETE` with method override)
+- `GET /` shows puppy index (homepage must be puppy management entry point)
+- Standard puppy CRUD routes:
+  - `GET /puppies`
+  - `GET /puppies/new`
+  - `POST /puppies`
+  - `GET /puppies/:id`
+  - `GET /puppies/:id/edit`
+  - `POST /puppies/:id` (or `PATCH/PUT` if framework supports method override cleanly)
+  - `POST /puppies/:id/delete` (or `DELETE` with method override)
 
 ### 2. Data Model
 
-`Cat` fields:
+`Puppy` fields:
 - `id` (primary key)
 - `name` (string)
 - timestamps if easy (`created_at`, `updated_at`)
@@ -47,46 +47,46 @@ Validation requirement:
 
 ### 3. HTML Pages
 
-#### Index (`/` and `/cats`)
-- Heading: `Cats`
-- List all cats
-- For each cat:
+#### Index (`/` and `/puppies`)
+- Heading: `Puppies`
+- List all puppies
+- For each puppy:
   - show `Name: <value>`
-  - show link to cat detail page
-- Show `New cat` action
+  - show link to puppy detail page
+- Show `New puppy` action
 
-#### New (`/cats/new`)
-- Heading: `New cat`
+#### New (`/puppies/new`)
+- Heading: `New puppy`
 - Form with:
   - label/input for `name`
   - submit action
-- Link back to cats index
+- Link back to puppies index
 
-#### Show (`/cats/:id`)
-- Display cat name
+#### Show (`/puppies/:id`)
+- Display puppy name
 - Actions:
   - edit
   - delete
   - back to index
 
-#### Edit (`/cats/:id/edit`)
-- Heading: `Editing cat`
+#### Edit (`/puppies/:id/edit`)
+- Heading: `Editing puppy`
 - Same form fields as New
 - Links to show page and index
 
 ### 4. CRUD Behavior
 
 - Create:
-  - saves cat
-  - redirects to cat show page
+  - saves puppy
+  - redirects to puppy show page
   - displays success notice
 - Update:
-  - updates cat
-  - redirects to cat show page
+  - updates puppy
+  - redirects to puppy show page
   - displays success notice
 - Delete:
-  - removes cat
-  - redirects to cats index
+  - removes puppy
+  - redirects to puppies index
   - displays success notice
 
 ### 5. UI Guidelines
@@ -97,7 +97,7 @@ Validation requirement:
 
 ### 6. Error Handling
 
-- If a cat id does not exist, return a normal 404 page/response.
+- If a puppy id does not exist, return a normal 404 page/response.
 - If form submission fails (if validations are introduced), re-render form with visible errors.
 
 ## Testing Requirements
@@ -105,17 +105,17 @@ Validation requirement:
 Implement basic automated tests for:
 - index page loads
 - new page loads
-- create increases cat count and redirects correctly
+- create increases puppy count and redirects correctly
 - show page loads
 - edit page loads
 - update persists change and redirects correctly
-- delete decreases cat count and redirects correctly
+- delete decreases puppy count and redirects correctly
 
 Keep tests fast and simple.
 
 ## Acceptance Criteria
 
-1. User can create, view, edit, and delete cats via HTML pages.
-2. `/` resolves to cats index.
+1. User can create, view, edit, and delete puppies via HTML pages.
+2. `/` resolves to puppies index.
 3. Success notices are shown after create/update/delete.
 4. UI remains intentionally minimal.
