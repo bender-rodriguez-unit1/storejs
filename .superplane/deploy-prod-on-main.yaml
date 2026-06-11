@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Canvas
 metadata:
+  id: a6d6f81d-1fdf-4cea-adfc-345ce2cbf1c5
   name: storejs-deploy-on-main
   description: Auto-deploys storejs to the DigitalOcean prod droplet whenever main changes.
 spec:

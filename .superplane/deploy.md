@@ -25,7 +25,33 @@ Exit code 0 = success (health check passed), non-zero = failure (the script dump
 There is a SuperPlane canvas that redeploys on every push to `main`:
 
 - **App name:** `storejs-deploy-on-main`
+- **App id:** `a6d6f81d-1fdf-4cea-adfc-345ce2cbf1c5`
 - **Flow:** `github.onPush (main)` → `digitalocean.getDroplet` (resolve public IP) → `ssh` (run `scripts/deploy.sh` pinned to the pushed commit)
+
+## PR preview SuperPlane Canvas
+
+When a PR is opened against `storejs`, SuperPlane spins up a preview droplet and comments the URL on the PR:
+
+- **App name:** `storejs-preview-on-pr`
+- **App id:** `1b1c1566-ed6a-40fe-a210-1323e69d1bfd`
+- **Flow:** `github.onPullRequest (opened)` → `digitalocean.createDroplet` → `wait` → `ssh` (run `scripts/preview-setup.sh`) → `github.createIssueComment` (preview URL)
+- **Canvas YAML:** [.superplane/preview-on-pr.yaml](preview-on-pr.yaml)
+- **Setup script:** `scripts/preview-setup.sh` (cloned from `main` on the droplet; checks out the PR branch via `PR_NUMBER`)
+
+Preview URL format: `http://<droplet-ip>/puppies`
+
+Recreate with:
+
+```bash
+superplane apps create --canvas-file .superplane/preview-on-pr.yaml --canvas-auto-layout horizontal
+```
+
+Monitor a run:
+
+```bash
+superplane events list --app-id 1b1c1566-ed6a-40fe-a210-1323e69d1bfd
+superplane executions list --app-id 1b1c1566-ed6a-40fe-a210-1323e69d1bfd --node-id setup-preview -o yaml
+```
 
 ### Recreating the canvas (CLI recipe for an agent)
 
