@@ -2,6 +2,8 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
+REPO_URL="${REPO_URL:-https://github.com/bender-rodriguez-unit1/storejs.git}"
+
 echo "=== Waiting for apt lock ==="
 for i in $(seq 1 30); do
   if ! fuser /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend >/dev/null 2>&1; then
@@ -21,8 +23,9 @@ apt-get install -y nodejs nginx
 
 echo "=== Cloning repo ==="
 cd /opt
+rm -rf app
 for i in 1 2 3 4 5; do
-  git clone https://github.com/puppies-inc/storejs.git app && break
+  git clone "$REPO_URL" app && break
   echo "Retry $i: git clone failed"
   rm -rf app
   sleep 10
@@ -34,10 +37,10 @@ git fetch origin "pull/${PR_NUMBER}/head:pr-branch"
 git checkout pr-branch
 
 echo "=== Installing dependencies ==="
-npm install --production
+npm install --omit=dev
 
 echo "=== Creating systemd service ==="
-cat > /etc/systemd/system/storejs.service << 'EOF'
+cat > /etc/systemd/system/storejs.service << EOF
 [Unit]
 Description=StoreJS
 After=network.target
@@ -54,7 +57,7 @@ WantedBy=multi-user.target
 EOF
 
 echo "=== Configuring nginx ==="
-cat > /etc/nginx/sites-available/storejs << 'EOF'
+cat > /etc/nginx/sites-available/storejs << 'NGINX'
 server {
     listen 80 default_server;
     server_name _;
@@ -65,7 +68,7 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 }
-EOF
+NGINX
 
 rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/storejs /etc/nginx/sites-enabled/
@@ -80,7 +83,7 @@ systemctl restart nginx
 echo "=== Health check ==="
 HTTP_STATUS=000
 for i in $(seq 1 30); do
-  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/puppies || true)
+  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L http://localhost:3000/ || true)
   [ "$HTTP_STATUS" = "200" ] && break
   sleep 2
 done
